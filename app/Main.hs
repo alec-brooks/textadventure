@@ -12,6 +12,8 @@ import System.IO
 
 data Language = Japanese | English deriving (Show)
 
+data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
+
 data Location = Location
   { desc :: String
   }
@@ -19,8 +21,9 @@ data Location = Location
 
 data GameState = GameState
   { language :: Language,
-    locations :: Map String Location,
-    command :: Command
+    locations :: Map LocationName Location,
+    command :: Command,
+    currentLocation :: LocationName
   }
   deriving (Show)
 
@@ -29,10 +32,11 @@ gameStateNewCommand ogs cmd =
   GameState
     { language = language ogs,
       locations = locations ogs,
-      command = cmd
+      command = cmd,
+      currentLocation = currentLocation ogs
     }
 
-availableLocations :: Map String Location -> [String]
+availableLocations :: Map LocationName Location -> [LocationName]
 availableLocations m = map fst $ toList m
 
 -- Commands
@@ -49,12 +53,12 @@ parseCommand input
   | input == "locations" = ViewLocations
   | otherwise = Invalid
 
-locales = Map.fromList [("Kitchen", Location "Place in house"), ("Bedroom", Location "Place where you sleep")]
+locales = Map.fromList [(Kitchen, Location "Place in house"), (Bedroom, Location "Place where you sleep")]
 
 main :: IO ()
 main = do
   putStrLn "Yo"
-  loop' GameState {language = English, locations = locales, command = NoOp}
+  loop' GameState {language = English, locations = locales, command = NoOp, currentLocation = Bedroom}
 
 read' :: IO String
 read' = do
