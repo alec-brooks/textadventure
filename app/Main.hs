@@ -14,15 +14,26 @@ data Language = Japanese | English deriving (Show)
 
 data Location = Location
   { desc :: String
-  }
+  } deriving (Show)
+
+data Command = ViewLocations deriving (Show)
 
 data GameState = GameState
   { language :: Language,
-    locations :: Map String Location
-  }
+    locations :: Map String Location,
+    command :: Command
+  } deriving (Show)
+
+gameStateNewCommand :: GameState -> Command -> GameState
+gameStateNewCommand ogs cmd =
+  GameState
+    { language = language ogs,
+      locations = locations ogs,
+      command = cmd
+    }
 
 availableLocations :: Map String Location -> [String]
-availableLocations m = map fst $ toList m 
+availableLocations m = map fst $ toList m
 
 -- Commands
 -- Set Language preference
@@ -34,7 +45,7 @@ locales = Map.fromList [("Kitchen", Location "Place in house"), ("Bedroom", Loca
 main :: IO ()
 main = do
   putStrLn "Yo"
-  loop' GameState {language = English, locations = locales}
+  loop' GameState {language = English, locations = locales, command = ViewLocations}
 
 read' :: IO String
 read' =
@@ -42,13 +53,14 @@ read' =
     >> hFlush stdout
     >> getLine
 
-eval' :: String -> GameState -> String
-eval' input gs = if input == "locations"
-    then show (availableLocations $ locations gs)
-    else input
+eval' :: String -> GameState -> GameState
+eval' input gs =
+  if input == "locations"
+    then gameStateNewCommand gs ViewLocations
+    else gs
 
-print' :: String -> IO ()
-print' = putStrLn
+print' :: GameState -> IO ()
+print' = print
 
 loop' :: GameState -> IO ()
 loop' gs = do
