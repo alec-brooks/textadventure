@@ -43,7 +43,7 @@ availableLocations m = map fst $ toList m
 -- Set Language preference
 -- go to location (relative or absolute or both?)
 -- examine objects
-data Command = ViewLocations | NoOp | Invalid | Quit deriving (Show, Eq)
+data Command = ViewLocations | NoOp | Invalid | Quit | ViewGameState deriving (Show, Eq)
 
 quitWords = ["quit", "exit", "q"]
 
@@ -51,6 +51,7 @@ parseCommand :: String -> Command
 parseCommand input
   | input `elem` quitWords = Quit
   | input == "locations" = ViewLocations
+  | input == "gs" = ViewGameState
   | otherwise = Invalid
 
 locales = Map.fromList [(Kitchen, Location "Place in house"), (Bedroom, Location "Place where you sleep")]
@@ -71,7 +72,9 @@ eval' cmd gs = gameStateNewCommand gs cmd
 
 print' :: GameState -> IO ()
 print' GameState {command = ViewLocations, locations = l} = print $ availableLocations l
-print' GameState {command = c} = print c
+print' gs
+  | command gs == ViewGameState = print gs
+  | otherwise = print $ command gs
 
 loop' :: GameState -> IO ()
 loop' gs = do
