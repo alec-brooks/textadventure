@@ -14,15 +14,15 @@ data Language = Japanese | English deriving (Show)
 
 data Location = Location
   { desc :: String
-  } deriving (Show)
-
-data Command = ViewLocations deriving (Show)
+  }
+  deriving (Show)
 
 data GameState = GameState
   { language :: Language,
     locations :: Map String Location,
     command :: Command
-  } deriving (Show)
+  }
+  deriving (Show)
 
 gameStateNewCommand :: GameState -> Command -> GameState
 gameStateNewCommand ogs cmd =
@@ -39,32 +39,40 @@ availableLocations m = map fst $ toList m
 -- Set Language preference
 -- go to location (relative or absolute or both?)
 -- examine objects
+data Command = ViewLocations | NoOp | Invalid | Quit deriving (Show, Eq)
 
-locales = Map.fromList [("Kitchen", Location "Place in house"), ("Bedroom", Location "PLace where you sleep")]
+quitWords = ["quit", "exit", "q"]
+
+parseCommand :: String -> Command
+parseCommand input
+  | input `elem` quitWords = Quit
+  | input == "locations" = ViewLocations
+  | otherwise = Invalid
+
+locales = Map.fromList [("Kitchen", Location "Place in house"), ("Bedroom", Location "Place where you sleep")]
 
 main :: IO ()
 main = do
   putStrLn "Yo"
-  loop' GameState {language = English, locations = locales, command = ViewLocations}
+  loop' GameState {language = English, locations = locales, command = NoOp}
 
 read' :: IO String
-read' =
-  putStr "REPL> "
-    >> hFlush stdout
-    >> getLine
+read' = do
+  putStr "> "
+  hFlush stdout
+  getLine
 
-eval' :: String -> GameState -> GameState
-eval' input gs =
-  if input == "locations"
-    then gameStateNewCommand gs ViewLocations
-    else gs
+eval' :: Command -> GameState -> GameState
+eval' cmd gs = gameStateNewCommand gs cmd
 
 print' :: GameState -> IO ()
-print' = print
+print' GameState {command = ViewLocations, locations = l} = print $ availableLocations l
+print' GameState {command = c} = print c
 
 loop' :: GameState -> IO ()
 loop' gs = do
   input <- read'
+  let cmd = parseCommand input
 
-  unless (input == ":quit") $
-    print' (eval' input gs) >> loop' gs
+  unless (cmd == Quit) $
+    print' (eval' cmd gs) >> loop' gs
