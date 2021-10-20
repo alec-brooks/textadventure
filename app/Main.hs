@@ -19,6 +19,8 @@ data Location = Location
   }
   deriving (Show)
 
+locationInput = Map.fromList [("kitchen", Kitchen), ("bedroom", Bedroom)]
+
 data GameState = GameState
   { language :: Language,
     locations :: Map LocationName Location,
@@ -43,7 +45,7 @@ availableLocations m = map fst $ toList m
 -- Set Language preference
 -- go to location (relative or absolute or both?)
 -- examine objects
-data Command = ViewLocations | NoOp | Invalid | Quit | ViewGameState deriving (Show, Eq)
+data Command = ViewLocations | NoOp | Invalid | Quit | ViewGameState | GoTo LocationName deriving (Show, Eq)
 
 quitWords = ["quit", "exit", "q"]
 
@@ -52,6 +54,7 @@ parseCommand input
   | input `elem` quitWords = Quit
   | input == "locations" = ViewLocations
   | input == "gs" = ViewGameState
+  | head (words input) == "go" = GoTo (locationInput Map.! last (words input))
   | otherwise = Invalid
 
 locales = Map.fromList [(Kitchen, Location "Place in house"), (Bedroom, Location "Place where you sleep")]
@@ -68,14 +71,17 @@ read' = do
   getLine
 
 eval' :: Command -> GameState -> GameState
+eval' (GoTo newLocation) gs = GameState {language = language gs, locations = locations gs, currentLocation = newLocation, command = GoTo newLocation}
 eval' cmd gs = gameStateNewCommand gs cmd
 
 print' :: GameState -> IO ()
 print' GameState {command = ViewLocations, locations = l} = print $ availableLocations l
+print' GameState {command = GoTo newLocation, locations = l, currentLocation=cl} = print $ "You enter " ++ show newLocation ++ ". " ++ desc (l Map.! newLocation)
 print' gs
   | command gs == ViewGameState = print gs
   | otherwise = print $ command gs
 
+-- todo: actually make the game state persist between cycles
 loop' :: GameState -> IO ()
 loop' gs = do
   input <- read'
