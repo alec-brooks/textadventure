@@ -76,16 +76,20 @@ eval' cmd gs = gameStateNewCommand gs cmd
 
 print' :: GameState -> IO ()
 print' GameState {command = ViewLocations, locations = l} = print $ availableLocations l
-print' GameState {command = GoTo newLocation, locations = l, currentLocation=cl} = print $ "You enter " ++ show newLocation ++ ". " ++ desc (l Map.! newLocation)
+print' GameState {command = GoTo newLocation, locations = l, currentLocation = cl} = print $ "You enter " ++ show newLocation ++ ". " ++ desc (l Map.! newLocation)
 print' gs
   | command gs == ViewGameState = print gs
   | otherwise = print $ command gs
 
--- todo: actually make the game state persist between cycles
 loop' :: GameState -> IO ()
 loop' gs = do
   input <- read'
   let cmd = parseCommand input
 
-  unless (cmd == Quit) $
-    print' (eval' cmd gs) >> loop' gs
+  unless
+    (cmd == Quit)
+    ( do
+        let newGameState =  eval' cmd gs
+        print' newGameState
+        loop' newGameState
+    )
