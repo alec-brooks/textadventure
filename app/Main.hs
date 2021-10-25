@@ -10,12 +10,28 @@ import System.IO
 -- Locations (Locations have objects)
 -- Objects
 
+
+-- todo: tests that take string input and game state and assert on game state
+--       interact with objects in room
+--       make initial game state layout nicer
+
 data Language = Japanese | English deriving (Show)
 
 data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
+data ObjectName = Book deriving (Show, Ord, Eq)
+
+data Item = Key deriving (Show, Ord, Eq)
+
+data Object = Object
+  { objDesc :: String,
+    item :: Item
+  }
+  deriving (Show)
+
 data Location = Location
-  { desc :: String
+  { locationDesc :: String,
+    objects :: Map ObjectName Object
   }
   deriving (Show)
 
@@ -57,7 +73,16 @@ parseCommand input
   | head (words input) == "go" = GoTo (locationInput Map.! last (words input))
   | otherwise = Invalid
 
-locales = Map.fromList [(Kitchen, Location "Place in house"), (Bedroom, Location "Place where you sleep")]
+locales :: Map LocationName Location
+locales =
+  Map.fromList
+    [ ( Kitchen,
+        Location "Place in house" Map.empty
+      ),
+      ( Bedroom,
+        Location "Place where you sleep. There is a book lying on the bedside table." $ Map.fromList [(Book, Object "An old tome, it smells like glue" Key)]
+      )
+    ]
 
 main :: IO ()
 main = do
@@ -76,7 +101,7 @@ eval' cmd gs = gameStateNewCommand gs cmd
 
 print' :: GameState -> IO ()
 print' GameState {command = ViewLocations, locations = l} = print $ availableLocations l
-print' GameState {command = GoTo newLocation, locations = l, currentLocation = cl} = print $ "You enter " ++ show newLocation ++ ". " ++ desc (l Map.! newLocation)
+print' GameState {command = GoTo newLocation, locations = l, currentLocation = cl} = print $ "You enter " ++ show newLocation ++ ". " ++ locationDesc (l Map.! newLocation)
 print' gs
   | command gs == ViewGameState = print gs
   | otherwise = print $ command gs
@@ -89,7 +114,7 @@ loop' gs = do
   unless
     (cmd == Quit)
     ( do
-        let newGameState =  eval' cmd gs
+        let newGameState = eval' cmd gs
         print' newGameState
         loop' newGameState
     )
