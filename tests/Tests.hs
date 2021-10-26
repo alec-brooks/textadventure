@@ -1,10 +1,15 @@
-import Game (Command (..), LocationName (..), parseCommand)
+import Game (Command (..), GameState, LocationName (..), command, currentLocation, eval', parseCommand, startingGS)
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (assertEqual, testCase)
 
 main = defaultMain unitTests
 
 unitTests =
+  testGroup
+    "Tests"
+    [parserTests, evalTests]
+
+parserTests =
   testGroup
     "Parser Tests"
     [ testCase "Exit becomes quit command" $
@@ -21,4 +26,13 @@ unitTests =
         assertEqual [] (GoTo Kitchen) (parseCommand "go to Kitchen"),
       testCase "go command returns invalid for unknown locations" $
         assertEqual [] Invalid (parseCommand "go to bin")
+    ]
+
+evalTests =
+  testGroup
+    "Eval Tests"
+    [ testCase "udpates command" $
+        assertEqual [] Quit (command $ eval' Quit startingGS),
+      testCase "current location is updated after move" $
+        assertEqual [] Kitchen (currentLocation $ eval' (GoTo Kitchen) startingGS)
     ]
