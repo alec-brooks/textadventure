@@ -2,6 +2,7 @@ module Game where
 
 import Control.Monad (unless)
 import Data.Map (Map, toList)
+import Data.Char (toLower)
 import qualified Data.Map.Strict as Map
 import System.IO
 
@@ -9,7 +10,6 @@ import System.IO
 -- Language Preference
 -- Locations (Locations have objects)
 -- Objects
-
 
 -- todo: tests that take string input and game state and assert on game state
 --       interact with objects in room
@@ -65,12 +65,22 @@ data Command = ViewLocations | NoOp | Invalid | Quit | ViewGameState | GoTo Loca
 
 quitWords = ["quit", "exit", "q"]
 
+lookupLocation :: String -> Command
+lookupLocation locationWord =
+  maybe
+    Invalid
+    GoTo
+    (locationInput Map.!? locationWord)
+
+lowerString :: String -> String
+lowerString str = [ toLower loweredString | loweredString <- str]
+
 parseCommand :: String -> Command
 parseCommand input
   | input `elem` quitWords = Quit
   | input == "locations" = ViewLocations
   | input == "gs" = ViewGameState
-  | head (words input) == "go" = GoTo (locationInput Map.! last (words input))
+  | head (words input) == "go" = lookupLocation $ lowerString $ last $ words input
   | otherwise = Invalid
 
 locales :: Map LocationName Location
@@ -83,6 +93,7 @@ locales =
         Location "Place where you sleep. There is a book lying on the bedside table." $ Map.fromList [(Book, Object "An old tome, it smells like glue" Key)]
       )
     ]
+
 startingGS = GameState {language = English, locations = locales, command = NoOp, currentLocation = Bedroom}
 
 read' :: IO String

@@ -16,5 +16,9 @@ unitTests =
       testCase "just go and location at start and end cause go action" $
         assertEqual [] (GoTo Kitchen) (parseCommand "go kitchen"),
       testCase "go and location at start and end cause go action with words inside" $
-        assertEqual [] (GoTo Kitchen) (parseCommand "go and there are words in the middled as well, many of them kitchen")
+        assertEqual [] (GoTo Kitchen) (parseCommand "go and there are words in the middled as well, many of them kitchen"),
+      testCase "go command is case insensitive" $
+        assertEqual [] (GoTo Kitchen) (parseCommand "go to Kitchen"),
+      testCase "go command returns invalid for unknown locations" $
+        assertEqual [] Invalid (parseCommand "go to bin")
     ]
