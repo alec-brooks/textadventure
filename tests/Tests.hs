@@ -1,4 +1,17 @@
-import Game (Command (..), GameState, LocationName (..), command, currentLocation, eval', parseCommand, startingGS)
+import Game
+  ( Command (..),
+    GameState,
+    LocationName (..),
+    Object (..),
+    ObjectName (..),
+    book,
+    command,
+    currentLocation,
+    eval',
+    formatMessage,
+    parseCommand,
+    startingGS,
+  )
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (assertEqual, testCase)
 
@@ -7,7 +20,7 @@ main = defaultMain unitTests
 unitTests =
   testGroup
     "Tests"
-    [parserTests, evalTests]
+    [parserTests, evalTests, e2eTests]
 
 parserTests =
   testGroup
@@ -24,8 +37,8 @@ parserTests =
         assertEqual [] (GoTo Kitchen) (parseCommand "go and there are words in the middled as well, many of them kitchen"),
       testCase "go command is case insensitive" $
         assertEqual [] (GoTo Kitchen) (parseCommand "go to Kitchen"),
-      testCase "go command returns invalid for unknown locations" $
-        assertEqual [] Invalid (parseCommand "go to bin")
+      testCase "interact object works " $
+        assertEqual [] (Interact Book) (parseCommand "pick up book")
     ]
 
 evalTests =
@@ -36,3 +49,21 @@ evalTests =
       testCase "current location is updated after move" $
         assertEqual [] Kitchen (currentLocation $ eval' (GoTo Kitchen) startingGS)
     ]
+
+printTests =
+  testGroup
+    "Print Tests"
+    []
+
+app input gs = do
+  let cmd = parseCommand input
+  formatMessage $ eval' cmd gs
+
+e2eTests =
+  testGroup
+    "End to End Tests"
+    [ testCase "examine items" $
+        assertEqual [] (objDesc book) (app "examine book" startingGS),
+    testCase "interact items" $
+        assertEqual [] (interactText book) (app "open book" startingGS)
+       ]
