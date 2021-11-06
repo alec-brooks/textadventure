@@ -4,6 +4,8 @@ import Control.Monad (unless)
 import Data.Char (toLower)
 import Data.Map (Map, toList)
 import qualified Data.Map.Strict as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
 import System.IO
 
 -- todo:
@@ -42,7 +44,7 @@ data GameState = GameState
     locations :: Map LocationName Location,
     command :: Command,
     currentLocation :: LocationName,
-    inventory :: [Item]
+    inventory :: Set Item
   }
   deriving (Show)
 
@@ -135,7 +137,7 @@ startingGS =
       locations = locales,
       command = NoOp,
       currentLocation = Bedroom,
-      inventory = []
+      inventory = Set.empty
     }
 
 read' :: IO String
@@ -161,11 +163,11 @@ eval' (Interact object) gs =
       command = Interact object,
       inventory = do
         let l = locations gs Map.! currentLocation gs
-        let o = objects l  Map.! object
+        let o = objects l Map.! object
         let i = item o
         case i of
           NoItem -> inventory gs
-          item -> inventory gs ++ [item]
+          item -> Set.insert item $ inventory gs
     }
 eval' cmd gs = gameStateNewCommand gs cmd
 
