@@ -65,5 +65,7 @@ e2eTests =
     [ testCase "examine items" $
         assertEqual [] (objDesc book) (app "examine book" startingGS),
     testCase "interact items" $
-        assertEqual [] (interactText book) (app "open book" startingGS)
+        assertEqual [] (interactText book) (app "open book" startingGS),
+    testCase "look at inventory" $
+        assertEqual [] "[]" (app "inventory" startingGS)
        ]

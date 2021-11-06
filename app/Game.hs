@@ -6,20 +6,17 @@ import Data.Map (Map, toList)
 import qualified Data.Map.Strict as Map
 import System.IO
 
--- Game State
--- Language Preference
--- Locations (Locations have objects)
--- Objects
-
--- todo: tests that take string input and game state and assert on game state
---       interact with objects in room
---       make initial game state layout nicer
+-- todo:
+--   inventory
+--   use items on objects
+--   gate movement until condition is met
+--   make initial game state layout nicer
 
 data Language = Japanese | English deriving (Show)
 
 data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
-data ObjectName = Book | Bed deriving (Show, Ord, Eq)
+data ObjectName = Book | Bed | Door deriving (Show, Ord, Eq)
 
 data Item = Key | NoItem deriving (Show, Ord, Eq)
 
@@ -38,13 +35,14 @@ data Location = Location
 
 locationInput = Map.fromList [("kitchen", Kitchen), ("bedroom", Bedroom)]
 
-objectInput = Map.fromList [("book", Book), ("tome", Book), ("bed", Bed)]
+objectInput = Map.fromList [("book", Book), ("tome", Book), ("bed", Bed), ("door", Door)]
 
 data GameState = GameState
   { language :: Language,
     locations :: Map LocationName Location,
     command :: Command,
-    currentLocation :: LocationName
+    currentLocation :: LocationName,
+    inventory :: [Item]
   }
   deriving (Show)
 
@@ -54,7 +52,8 @@ gameStateNewCommand ogs cmd =
     { language = language ogs,
       locations = locations ogs,
       command = cmd,
-      currentLocation = currentLocation ogs
+      currentLocation = currentLocation ogs,
+      inventory = inventory ogs
     }
 
 availableLocations :: Map LocationName Location -> [LocationName]
@@ -73,9 +72,12 @@ data Command
   | GoTo LocationName
   | Interact ObjectName
   | Examine ObjectName
+  | Inventory
   deriving (Show, Eq)
 
 quitWords = ["quit", "exit", "q"]
+
+inventoryWords = ["inventory", "i"]
 
 interactWords = ["pick", "open", "interact"]
 
@@ -96,6 +98,7 @@ parseCommand input
   | input `elem` quitWords = Quit
   | input == "locations" = ViewLocations
   | input == "gs" = ViewGameState
+  | input `elem` inventoryWords = Inventory
   | head (words input) == "go" = lookupInput (lowerString $ last $ words input) locationInput GoTo
   | head (words input) `elem` interactWords = lookupInput (lowerString $ last $ words input) objectInput Interact
   | head (words input) `elem` examineWords = lookupInput (lowerString $ last $ words input) objectInput Examine
@@ -126,7 +129,14 @@ locales =
       )
     ]
 
-startingGS = GameState {language = English, locations = locales, command = NoOp, currentLocation = Bedroom}
+startingGS =
+  GameState
+    { language = English,
+      locations = locales,
+      command = NoOp,
+      currentLocation = Bedroom,
+      inventory = []
+    }
 
 read' :: IO String
 read' = do
@@ -135,8 +145,28 @@ read' = do
   getLine
 
 eval' :: Command -> GameState -> GameState
-eval' (GoTo newLocation) gs = GameState {language = language gs, locations = locations gs, currentLocation = newLocation, command = GoTo newLocation}
-eval' (Interact object) gs = GameState {language = language gs, locations = locations gs, currentLocation = currentLocation gs, command = Interact object}
+eval' (GoTo newLocation) gs =
+  GameState
+    { language = language gs,
+      locations = locations gs,
+      currentLocation = newLocation,
+      command = GoTo newLocation,
+      inventory = inventory gs
+    }
+eval' (Interact object) gs =
+  GameState
+    { language = language gs,
+      locations = locations gs,
+      currentLocation = currentLocation gs,
+      command = Interact object,
+      inventory = do
+        let l = locations gs Map.! currentLocation gs
+        let o = objects l  Map.! object
+        let i = item o
+        case i of
+          NoItem -> inventory gs
+          item -> inventory gs ++ [item]
+    }
 eval' cmd gs = gameStateNewCommand gs cmd
 
 formatMessage :: GameState -> String
@@ -150,6 +180,7 @@ formatMessage GameState {command = Interact o, locations = l, currentLocation = 
   interactText $ os Map.! o
 formatMessage gs
   | command gs == ViewGameState = show gs
+  | command gs == Inventory = show $ inventory gs
   | otherwise = show $ command gs
 
 loop' :: GameState -> IO ()
