@@ -81,27 +81,12 @@ interactWords = ["pick", "open", "interact"]
 
 examineWords = ["examine", "look", "inspect"]
 
--- dry these out
-lookupLocation :: String -> Command
-lookupLocation locationWord =
+lookupInput :: String -> Map String a -> (a -> Command) -> Command
+lookupInput w input c =
   maybe
     Invalid
-    GoTo
-    (locationInput Map.!? locationWord)
-
-lookupObject :: String -> Command
-lookupObject objectWord =
-  maybe
-    Invalid
-    Interact
-    (objectInput Map.!? objectWord)
-
-lookupExamineObject :: String -> Command
-lookupExamineObject objectWord =
-  maybe
-    Invalid
-    Examine
-    (objectInput Map.!? objectWord)
+    c
+    (input Map.!? w)
 
 lowerString :: String -> String
 lowerString str = [toLower loweredString | loweredString <- str]
@@ -111,9 +96,9 @@ parseCommand input
   | input `elem` quitWords = Quit
   | input == "locations" = ViewLocations
   | input == "gs" = ViewGameState
-  | head (words input) == "go" = lookupLocation $ lowerString $ last $ words input
-  | head (words input) `elem` interactWords = lookupObject $ lowerString $ last $ words input
-  | head (words input) `elem` examineWords = lookupExamineObject $ lowerString $ last $ words input
+  | head (words input) == "go" = lookupInput (lowerString $ last $ words input) locationInput GoTo
+  | head (words input) `elem` interactWords = lookupInput (lowerString $ last $ words input) objectInput Interact
+  | head (words input) `elem` examineWords = lookupInput (lowerString $ last $ words input) objectInput Examine
   | otherwise = Invalid
 
 book =
