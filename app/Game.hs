@@ -61,10 +61,6 @@ gameStateNewCommand ogs cmd =
 availableLocations :: Map LocationName Location -> [LocationName]
 availableLocations m = map fst $ toList m
 
--- Commands
--- Set Language preference
--- go to location (relative or absolute or both?)
--- examine objects
 data Command
   = ViewLocations
   | NoOp
@@ -75,6 +71,7 @@ data Command
   | Interact ObjectName
   | Examine ObjectName
   | Inventory
+  | Look
   deriving (Show, Eq)
 
 quitWords = ["quit", "exit", "q"]
@@ -84,6 +81,7 @@ inventoryWords = ["inventory", "i"]
 interactWords = ["pick", "open", "interact"]
 
 examineWords = ["examine", "look", "inspect"]
+
 
 lookupInput :: String -> Map String a -> (a -> Command) -> Command
 lookupInput w input c =
@@ -101,6 +99,7 @@ parseCommand input
   | input == "locations" = ViewLocations
   | input == "gs" = ViewGameState
   | input `elem` inventoryWords = Inventory
+  | input `elem` examineWords = Look
   | head (words input) == "go" = lookupInput (lowerString $ last $ words input) locationInput GoTo
   | head (words input) `elem` interactWords = lookupInput (lowerString $ last $ words input) objectInput Interact
   | head (words input) `elem` examineWords = lookupInput (lowerString $ last $ words input) objectInput Examine
@@ -174,6 +173,7 @@ eval' cmd gs = gameStateNewCommand gs cmd
 formatMessage :: GameState -> String
 formatMessage GameState {command = ViewLocations, locations = l} = show $ availableLocations l
 formatMessage GameState {command = GoTo newLocation, locations = l, currentLocation = cl} = "You enter " ++ show newLocation ++ ". " ++ locationDesc (l Map.! newLocation)
+formatMessage GameState {command = Look, locations = l, currentLocation = cl} = locationDesc $ l Map.! cl
 formatMessage GameState {command = Examine o, locations = l, currentLocation = cl} = do
   let os = objects $ l Map.! cl
   objDesc $ os Map.! o
