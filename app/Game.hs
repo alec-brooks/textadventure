@@ -19,9 +19,9 @@ data Language = Japanese | English deriving (Show)
 
 data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
-data ObjectName = Book deriving (Show, Ord, Eq)
+data ObjectName = Book | Bed deriving (Show, Ord, Eq)
 
-data Item = Key deriving (Show, Ord, Eq)
+data Item = Key | NoItem deriving (Show, Ord, Eq)
 
 data Object = Object
   { objDesc :: String,
@@ -38,7 +38,7 @@ data Location = Location
 
 locationInput = Map.fromList [("kitchen", Kitchen), ("bedroom", Bedroom)]
 
-objectInput = Map.fromList [("book", Book)]
+objectInput = Map.fromList [("book", Book), ("tome", Book), ("bed", Bed)]
 
 data GameState = GameState
   { language :: Language,
@@ -79,7 +79,7 @@ quitWords = ["quit", "exit", "q"]
 
 interactWords = ["pick", "open", "interact"]
 
-examineWords = ["examine", "look"]
+examineWords = ["examine", "look", "inspect"]
 
 -- dry these out
 lookupLocation :: String -> Command
@@ -123,14 +123,21 @@ book =
       interactText = "Inside the book is a hollowed out chamber containing a key"
     }
 
+bed =
+  Object
+    { objDesc = "A normal old bed",
+      item = NoItem,
+      interactText = "You can't seem to do anything with this"
+    }
+
 locales :: Map LocationName Location
 locales =
   Map.fromList
     [ ( Kitchen,
-        Location "Place in house" Map.empty
+        Location "An old kitchen. The walls are stone and the air is cool" Map.empty
       ),
       ( Bedroom,
-        Location "Place where you sleep. There is a book lying on the bedside table." $ Map.fromList [(Book, book)]
+        Location "The room where you rest. There is a book lying on the bedside table." $ Map.fromList [(Book, book), (Bed, bed)]
       )
     ]
 
