@@ -85,6 +85,9 @@ lookupInput w input c =
 lowerString :: String -> String
 lowerString str = [toLower loweredString | loweredString <- str]
 
+lastWord :: String -> String
+lastWord = lowerString . last . words
+
 parseCommand :: String -> Command
 parseCommand input
   | input `elem` quitWords = Quit
@@ -92,9 +95,9 @@ parseCommand input
   | input == "gs" = ViewGameState
   | input `elem` inventoryWords = Inventory
   | input `elem` examineWords = Look
-  | head (words input) == "go" = lookupInput (lowerString $ last $ words input) locationInput GoTo
-  | head (words input) `elem` interactWords = lookupInput (lowerString $ last $ words input) objectInput Interact
-  | head (words input) `elem` examineWords = lookupInput (lowerString $ last $ words input) objectInput Examine
+  | head (words input) == "go" = lookupInput (lastWord input) locationInput GoTo
+  | head (words input) `elem` interactWords = lookupInput (lastWord input) objectInput Interact
+  | head (words input) `elem` examineWords = lookupInput (lastWord input) objectInput Examine
   | otherwise = Invalid
 
 book =
