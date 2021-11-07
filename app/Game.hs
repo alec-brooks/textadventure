@@ -20,11 +20,11 @@ data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
 data ObjectName = Book | Bed | Door deriving (Show, Ord, Eq)
 
-data Item = Key | NoItem deriving (Show, Ord, Eq)
+data Item = Key deriving (Show, Ord, Eq)
 
 data Object = Object
   { objDesc :: String,
-    item :: Item,
+    item :: Maybe Item,
     interactText :: String
   }
   deriving (Show, Eq)
@@ -82,7 +82,6 @@ interactWords = ["pick", "open", "interact"]
 
 examineWords = ["examine", "look", "inspect"]
 
-
 lookupInput :: String -> Map String a -> (a -> Command) -> Command
 lookupInput w input c =
   maybe
@@ -108,14 +107,14 @@ parseCommand input
 book =
   Object
     { objDesc = "An old tome, it smells like glue",
-      item = Key,
+      item = Just Key,
       interactText = "Inside the book is a hollowed out chamber containing a key"
     }
 
 bed =
   Object
     { objDesc = "A normal old bed",
-      item = NoItem,
+      item = Nothing,
       interactText = "You can't seem to do anything with this"
     }
 
@@ -165,8 +164,8 @@ eval' (Interact object) gs =
         let o = objects l Map.! object
         let i = item o
         case i of
-          NoItem -> inventory gs
-          item -> Set.insert item $ inventory gs
+          Nothing -> inventory gs
+          Just item -> Set.insert item $ inventory gs
     }
 eval' cmd gs = gameStateNewCommand gs cmd
 
@@ -179,7 +178,10 @@ formatMessage GameState {command = Examine o, locations = l, currentLocation = c
   objDesc $ os Map.! o
 formatMessage GameState {command = Interact o, locations = l, currentLocation = cl} = do
   let os = objects $ l Map.! cl
-  interactText $ os Map.! o
+  let object = os Map.! o
+  case item object of
+    Nothing -> interactText object
+    Just item -> interactText object ++ "\n" ++ show item ++ " added to inventory"
 formatMessage gs
   | command gs == ViewGameState = show gs
   | command gs == Inventory = show $ inventory gs
@@ -194,6 +196,6 @@ loop' gs = do
     (cmd == Quit)
     ( do
         let newGameState = eval' cmd gs
-        print $ formatMessage newGameState
+        putStrLn $ formatMessage newGameState
         loop' newGameState
     )
