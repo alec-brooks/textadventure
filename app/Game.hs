@@ -9,7 +9,6 @@ import qualified Data.Set as Set
 import System.IO
 
 -- todo:
---   inventory
 --   use items on objects
 --   gate movement until condition is met
 --   make initial game state layout nicer
@@ -44,19 +43,10 @@ data GameState = GameState
     locations :: Map LocationName Location,
     command :: Command,
     currentLocation :: LocationName,
-    inventory :: Set Item
+    inventory :: Set Item,
+    navigableLocations :: Set LocationName
   }
   deriving (Show)
-
-gameStateNewCommand :: GameState -> Command -> GameState
-gameStateNewCommand ogs cmd =
-  GameState
-    { language = language ogs,
-      locations = locations ogs,
-      command = cmd,
-      currentLocation = currentLocation ogs,
-      inventory = inventory ogs
-    }
 
 availableLocations :: Map LocationName Location -> [LocationName]
 availableLocations m = map fst $ toList m
@@ -118,6 +108,13 @@ bed =
       interactText = "You can't seem to do anything with this"
     }
 
+door =
+  Object
+    { objDesc = "A sorry looking wooden door. There is a key hole present near the handle",
+      item = Nothing,
+      interactText = "Despite it's frail appearance you can't get it to budge"
+    }
+
 locales :: Map LocationName Location
 locales =
   Map.fromList
@@ -125,7 +122,7 @@ locales =
         Location "An old kitchen. The walls are stone and the air is cool" Map.empty
       ),
       ( Bedroom,
-        Location "The room where you rest. There is a book lying on the bedside table." $ Map.fromList [(Book, book), (Bed, bed)]
+        Location "The room where you rest. There is a book lying on the bedside table." $ Map.fromList [(Book, book), (Bed, bed), (Door, door)]
       )
     ]
 
@@ -135,7 +132,8 @@ startingGS =
       locations = locales,
       command = NoOp,
       currentLocation = Bedroom,
-      inventory = Set.empty
+      inventory = Set.empty,
+      navigableLocations = Set.singleton Bedroom
     }
 
 read' :: IO String
@@ -146,19 +144,13 @@ read' = do
 
 eval' :: Command -> GameState -> GameState
 eval' (GoTo newLocation) gs =
-  GameState
-    { language = language gs,
-      locations = locations gs,
-      currentLocation = newLocation,
-      command = GoTo newLocation,
-      inventory = inventory gs
+  gs
+    { currentLocation = newLocation,
+      command = GoTo newLocation
     }
 eval' (Interact object) gs =
-  GameState
-    { language = language gs,
-      locations = locations gs,
-      currentLocation = currentLocation gs,
-      command = Interact object,
+  gs
+    { command = Interact object,
       inventory = do
         let l = locations gs Map.! currentLocation gs
         let o = objects l Map.! object
@@ -167,7 +159,7 @@ eval' (Interact object) gs =
           Nothing -> inventory gs
           Just item -> Set.insert item $ inventory gs
     }
-eval' cmd gs = gameStateNewCommand gs cmd
+eval' cmd gs = gs {command = cmd}
 
 formatMessage :: GameState -> String
 formatMessage GameState {command = ViewLocations, locations = l} = show $ availableLocations l
