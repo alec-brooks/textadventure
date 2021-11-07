@@ -34,6 +34,8 @@ data Location = Location
   }
   deriving (Show)
 
+data Error = UnableToGo deriving (Show)
+
 locationInput = Map.fromList [("kitchen", Kitchen), ("bedroom", Bedroom)]
 
 objectInput = Map.fromList [("book", Book), ("tome", Book), ("bed", Bed), ("door", Door)]
@@ -44,7 +46,8 @@ data GameState = GameState
     command :: Command,
     currentLocation :: LocationName,
     inventory :: Set Item,
-    navigableLocations :: Set LocationName
+    navigableLocations :: Set LocationName,
+    gameError :: Maybe Error
   }
   deriving (Show)
 
@@ -133,7 +136,8 @@ startingGS =
       command = NoOp,
       currentLocation = Bedroom,
       inventory = Set.empty,
-      navigableLocations = Set.singleton Bedroom
+      navigableLocations = Set.singleton Bedroom,
+      gameError = Nothing
     }
 
 read' :: IO String
@@ -144,10 +148,13 @@ read' = do
 
 eval' :: Command -> GameState -> GameState
 eval' (GoTo newLocation) gs =
-  gs
-    { currentLocation = newLocation,
-      command = GoTo newLocation
-    }
+  if newLocation `elem` navigableLocations gs
+    then
+      gs
+        { currentLocation = newLocation,
+          command = GoTo newLocation
+        }
+    else gs {gameError = Just UnableToGo}
 eval' (Interact object) gs =
   gs
     { command = Interact object,
@@ -162,6 +169,7 @@ eval' (Interact object) gs =
 eval' cmd gs = gs {command = cmd}
 
 formatMessage :: GameState -> String
+formatMessage GameState {gameError = Just e} = show e
 formatMessage GameState {command = ViewLocations, locations = l} = show $ availableLocations l
 formatMessage GameState {command = GoTo newLocation, locations = l, currentLocation = cl} = "You enter " ++ show newLocation ++ ". " ++ locationDesc (l Map.! newLocation)
 formatMessage GameState {command = Look, locations = l, currentLocation = cl} = locationDesc $ l Map.! cl
