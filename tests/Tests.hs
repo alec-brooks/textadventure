@@ -1,3 +1,5 @@
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Game
   ( Command (..),
     GameState,
@@ -9,6 +11,7 @@ import Game
     currentLocation,
     eval',
     formatMessage,
+    navigableLocations,
     parseCommand,
     startingGS,
   )
@@ -47,7 +50,7 @@ evalTests =
     [ testCase "udpates command" $
         assertEqual [] Quit (command $ eval' Quit startingGS),
       testCase "current location is updated after move" $
-        assertEqual [] Kitchen (currentLocation $ eval' (GoTo Kitchen) startingGS)
+        assertEqual [] Kitchen (currentLocation $ eval' (GoTo Kitchen) startingGS {navigableLocations = Set.singleton Kitchen})
     ]
 
 printTests =
@@ -64,9 +67,9 @@ e2eTests =
     "End to End Tests"
     [ testCase "examine items" $
         assertEqual [] (objDesc book) (app "examine book" startingGS),
-    testCase "interact items" $
+      testCase "interact items" $
         assertEqual [] (interactText book ++ "\nKey added to inventory") (app "open book" startingGS),
-    -- this should look nicer
-    testCase "look at inventory" $
+      -- this should look nicer
+      testCase "look at inventory" $
         assertEqual [] "fromList []" (app "inventory" startingGS)
-       ]
+    ]

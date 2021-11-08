@@ -10,7 +10,6 @@ import System.IO
 
 -- todo:
 --   use items on objects
---   gate movement until condition is met
 --   make initial game state layout nicer
 
 data Language = Japanese | English deriving (Show)
