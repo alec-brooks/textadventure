@@ -10,8 +10,6 @@ import Evaluate (eval)
 import FormatMessage (formatMessage)
 
 -- todo:
---   make initial game state layout nicer
---
 --   help h
 --   proper context printed at the start
 --   pretty print inventory
