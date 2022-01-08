@@ -4,6 +4,7 @@ import Game
   ( Command (..),
     GameState,
     LocationName (..),
+    ItemName (..),
     Object (..),
     ObjectName (..),
     book,
@@ -41,7 +42,9 @@ parserTests =
       testCase "go command is case insensitive" $
         assertEqual [] (GoTo Kitchen) (parseCommand "go to Kitchen"),
       testCase "interact object works " $
-        assertEqual [] (Interact Book) (parseCommand "pick up book")
+        assertEqual [] (Interact Book) (parseCommand "pick up book"),
+      testCase "use item on object" $
+        assertEqual [] (Use Key Door) (parseCommand "use key on door")
     ]
 
 evalTests =
