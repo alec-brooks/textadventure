@@ -1,21 +1,20 @@
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Game
+import GameObjects (book, startingGS)
+import ParseCommand (parseCommand)
+import State
   ( Command (..),
     GameState,
-    LocationName (..),
     ItemName (..),
+    LocationName (..),
     Object (..),
     ObjectName (..),
-    book,
     command,
     currentLocation,
-    eval',
-    formatMessage,
     navigableLocations,
-    parseCommand,
-    startingGS,
   )
+import Evaluate (eval)
+import FormatMessage (formatMessage)
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (assertEqual, testCase)
 
@@ -51,9 +50,9 @@ evalTests =
   testGroup
     "Eval Tests"
     [ testCase "udpates command" $
-        assertEqual [] Quit (command $ eval' Quit startingGS),
+        assertEqual [] Quit (command $ eval Quit startingGS),
       testCase "current location is updated after move" $
-        assertEqual [] Kitchen (currentLocation $ eval' (GoTo Kitchen) startingGS {navigableLocations = Set.singleton Kitchen})
+        assertEqual [] Kitchen (currentLocation $ eval (GoTo Kitchen) startingGS {navigableLocations = Set.singleton Kitchen})
     ]
 
 printTests =
@@ -63,7 +62,7 @@ printTests =
 
 app input gs = do
   let cmd = parseCommand input
-  formatMessage $ eval' cmd gs
+  formatMessage $ eval cmd gs
 
 e2eTests =
   testGroup

@@ -1,5 +1,6 @@
 module Main where
-import Game (loop', startingGS)
+import Game (loop')
+import GameObjects (startingGS)
 
 main :: IO ()
 main = do
