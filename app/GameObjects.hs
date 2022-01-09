@@ -1,10 +1,10 @@
 module GameObjects where
 
-import State
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
+import State
 
 defaultObj =
   Object
@@ -29,6 +29,18 @@ bed =
       item = Nothing
     }
 
+bedsideTable =
+  defaultObj
+    { objDesc = "A plain bedside table. There are no drawers. On it lies the book",
+      item = Nothing
+    }
+
+walls =
+  defaultObj
+    { objDesc = "Lightly scuffed but solid. They could be plastered brick",
+      item = Nothing
+    }
+
 door =
   defaultObj
     { objDesc = "A sorry looking wooden door. There is a key hole present near the handle",
@@ -46,13 +58,13 @@ locales =
         Location kitchenDesc Map.empty
       ),
       ( Bedroom,
-        Location bedroomDesc bedroomItems
+        Location bedroomDesc bedroomObjects
       )
     ]
-    where 
-      kitchenDesc = "An old kitchen. The walls are stone and the air is cool" 
-      bedroomDesc = "The room where you rest. There is a book lying on the bedside table. A frail door stands in the middle of one of the blank walls"
-      bedroomItems =  Map.fromList [(Book, book), (Bed, bed), (Door, door)]
+  where
+    kitchenDesc = "An old kitchen. The walls are stone and the air is cool"
+    bedroomDesc = "You are in the room where you rest. There is a book lying on the bedside table. A frail door stands in the middle of one of the blank walls"
+    bedroomObjects = Map.fromList [(Book, book), (Bed, bed), (Door, door), (Walls, walls), (BedsideTable, bedsideTable)]
 
 startingGS =
   GameState
@@ -64,4 +76,3 @@ startingGS =
       navigableLocations = Set.singleton Bedroom,
       gameError = Nothing
     }
-

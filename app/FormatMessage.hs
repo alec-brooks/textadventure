@@ -1,7 +1,10 @@
 module FormatMessage where
 
-import Data.Map
+import Data.Map (Map, (!))
 import State
+
+import qualified Data.Set as Set
+import Data.List (intercalate)
 
 getObject :: ObjectName -> Map LocationName Location -> LocationName -> Object
 getObject on l cl = objects (l ! cl) ! on
@@ -21,5 +24,5 @@ formatMessage GameState {command = Use item objectName, locations = l, currentLo
   useText $ getObject objectName l cl
 formatMessage gs
   | command gs == ViewGameState = show gs
-  | command gs == Inventory = show $ inventory gs
+  | command gs == Inventory = "Inventory Contents:\n" ++ intercalate "\n"  (map show . Set.toList $ inventory gs)
   | otherwise = show $ command gs

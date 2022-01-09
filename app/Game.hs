@@ -11,10 +11,12 @@ import FormatMessage (formatMessage)
 
 -- todo:
 --   help h
---   proper context printed at the start
 --   pretty print inventory
--- read' :: IO String
---
+--   
+--   look at room
+--   put *Name in GameObjects
+--   make Use safer. Add fail case text
+
 read' = do
   putStr "> "
   hFlush stdout

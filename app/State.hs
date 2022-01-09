@@ -6,7 +6,7 @@ import Text.Show.Functions
 
 data Language = Japanese | English deriving (Show)
 
-data ItemName = Key deriving (Show, Ord, Eq)
+data ItemName = Key | Knife deriving (Show, Ord, Eq)
 
 data Item = Item
   { itemDesc :: String,
@@ -21,7 +21,7 @@ data Location = Location
   }
   deriving (Show)
 
-data ObjectName = Book | Bed | Door deriving (Show, Ord, Eq)
+data ObjectName = Book | Bed | Door | Walls | BedsideTable deriving (Show, Ord, Eq)
 
 data Object = Object
   { objDesc :: String,

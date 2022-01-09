@@ -12,6 +12,7 @@ import State
     command,
     currentLocation,
     navigableLocations,
+    inventory,
   )
 import Evaluate (eval)
 import FormatMessage (formatMessage)
@@ -71,7 +72,15 @@ e2eTests =
         assertEqual [] (objDesc book) (app "examine book" startingGS),
       testCase "interact items" $
         assertEqual [] (interactText book ++ "\nKey added to inventory") (app "open book" startingGS),
-      -- this should look nicer
-      testCase "look at inventory" $
-        assertEqual [] "fromList []" (app "inventory" startingGS)
+      testCase "look at inventory " $
+        assertEqual [] "Inventory Contents:\nKey\nKnife" (app "inventory" startingGS {inventory = Set.fromList [Key,Knife]}),
+
+      testCase "use bad item on object" $
+        assertEqual [] "Invalid" (app "use x on door" startingGS),
+      testCase "use bad item on bad object" $
+        assertEqual [] "Invalid" (app "use x on x" startingGS),
+      testCase "use item on bad object" $
+        assertEqual [] "Invalid" (app "use key on x" startingGS),
+      testCase "use unowned item on object" $
+        assertEqual [] "NoItem" (app "use key on door" startingGS)
     ]

@@ -1,8 +1,9 @@
 module ParseCommand where
-import State
 
-import Data.Map
 import Data.Char (toLower)
+import Data.Map (Map, fromList, (!), (!?))
+import State
+import Data.Maybe (isNothing, fromJust)
 
 parseCommand :: String -> Command
 parseCommand input
@@ -11,13 +12,13 @@ parseCommand input
   | input == "gs" = ViewGameState
   | input `elem` inventoryWords = Inventory
   | input `elem` examineWords = Look
-  | head (words input) `elem` goWords = lookupInput (lastWord input) locationInput GoTo
-  | head (words input) `elem` interactWords = lookupInput (lastWord input) objectInput Interact
-  | head (words input) `elem` examineWords = lookupInput (lastWord input) objectInput Examine
-  -- This needs to be safer
-  | any (`elem` useJoiningWords) (words input) && head (words input) `elem` useWords =
-    Use (itemInput ! secondWord input) (objectInput ! lastWord input)
+  | head processedWords `elem` goWords = lookupInput (lastWord processedWords) locationInput GoTo
+  | head processedWords `elem` interactWords = lookupInput (lastWord processedWords) objectInput Interact
+  | head processedWords `elem` examineWords = lookupInput (lastWord processedWords) objectInput Examine
+  | any (`elem` useJoiningWords) processedWords && head processedWords `elem` useWords = useInput processedWords
   | otherwise = Invalid
+  where
+    processedWords = filter (/= "the") $ words input
 
 quitWords = ["quit", "exit", "q"]
 
@@ -25,29 +26,45 @@ inventoryWords = ["inventory", "i"]
 
 interactWords = ["pick", "open", "interact"]
 
-examineWords = ["examine", "look", "inspect"]
+examineWords = ["examine", "look", "inspect", "check"]
 
-useJoiningWords = ["with", "on"]
+useJoiningWords = ["with", "on", "in"]
 
-useWords = ["use"]
+useWords = ["use", "put"]
 
 goWords = ["go", "enter"]
 
 lookupInput :: String -> Map String a -> (a -> Command) -> Command
 lookupInput w input c = maybe Invalid c (input !? w)
 
+useInput :: [String] -> Command
+useInput wds = if isNothing item || isNothing obj then
+    Invalid
+  else
+    Use (fromJust item) (fromJust obj)
+  where
+    item = itemInput !? secondWord wds
+    obj = objectInput !? lastWord wds
+
 lowerString :: String -> String
 lowerString str = [toLower loweredString | loweredString <- str]
 
-lastWord :: String -> String
-lastWord = lowerString . last . words
+lastWord :: [String] -> String
+lastWord = lowerString . last
 
-secondWord :: String -> String
-secondWord = lowerString . head . tail . words
+secondWord :: [String] -> String
+secondWord = lowerString . head . tail
 
 locationInput = fromList [("kitchen", Kitchen), ("bedroom", Bedroom)]
 
-objectInput = fromList [("book", Book), ("tome", Book), ("bed", Bed), ("door", Door)]
+objectInput =
+  fromList
+    [ ("book", Book),
+      ("tome", Book),
+      ("bed", Bed),
+      ("door", Door),
+      ("walls", Walls),
+      ("table", BedsideTable)
+    ]
 
 itemInput = fromList [("key", Key)]
-
