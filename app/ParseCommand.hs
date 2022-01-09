@@ -12,6 +12,7 @@ parseCommand input
   | input == "gs" = ViewGameState
   | input `elem` inventoryWords = Inventory
   | input `elem` examineWords = Look
+  | input `elem` helpWords = Help
   | head processedWords `elem` goWords = lookupInput (lastWord processedWords) locationInput GoTo
   | head processedWords `elem` interactWords = lookupInput (lastWord processedWords) objectInput Interact
   | head processedWords `elem` examineWords = lookupInput (lastWord processedWords) objectInput Examine
@@ -33,6 +34,8 @@ useJoiningWords = ["with", "on", "in"]
 useWords = ["use", "put"]
 
 goWords = ["go", "enter"]
+
+helpWords = ["h", "help"]
 
 lookupInput :: String -> Map String a -> (a -> Command) -> Command
 lookupInput w input c = maybe Invalid c (input !? w)

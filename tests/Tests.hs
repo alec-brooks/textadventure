@@ -15,7 +15,7 @@ import State
     inventory,
   )
 import Evaluate (eval)
-import FormatMessage (formatMessage)
+import FormatMessage (formatMessage,wrapText)
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (assertEqual, testCase)
 
@@ -24,7 +24,7 @@ main = defaultMain unitTests
 unitTests =
   testGroup
     "Tests"
-    [parserTests, evalTests, e2eTests]
+    [parserTests, evalTests, e2eTests, formatTests]
 
 parserTests =
   testGroup
@@ -84,3 +84,18 @@ e2eTests =
       testCase "use unowned item on object" $
         assertEqual [] "NoItem" (app "use key on door" startingGS)
     ]
+
+testText = "hello there the wrap will be before the word wrap"
+wrapped =  "hello there the\nwrap will be before the\nword wrap"
+
+
+bigText = "i heart verisimilitude in the morning"
+bigWrapped =  "i heart\nverisimilitude in the morning"
+formatTests = 
+    testGroup
+      "Formatter Tests"
+      [ testCase "wrap line at index, before word" $ 
+          assertEqual [] wrapped (wrapText 20 testText),
+        testCase "big words" $
+          assertEqual [] bigWrapped (wrapText 20 bigText)
+          ]

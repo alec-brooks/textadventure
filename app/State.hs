@@ -51,6 +51,7 @@ data Command
   | NoOp
   | Invalid
   | Quit
+  | Help
   | ViewGameState
   | GoTo LocationName
   | Interact ObjectName

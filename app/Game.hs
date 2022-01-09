@@ -10,12 +10,8 @@ import Evaluate (eval)
 import FormatMessage (formatMessage)
 
 -- todo:
---   help h
---   pretty print inventory
---   
 --   look at room
---   put *Name in GameObjects
---   make Use safer. Add fail case text
+--   Add use fail case text
 
 read' = do
   putStr "> "
