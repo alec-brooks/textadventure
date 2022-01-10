@@ -76,13 +76,13 @@ e2eTests =
         assertEqual [] "Inventory Contents:\nKey\nKnife" (app "inventory" startingGS {inventory = Set.fromList [Key,Knife]}),
 
       testCase "use bad item on object" $
-        assertEqual [] "Invalid" (app "use x on door" startingGS),
+        assertEqual [] "That doesn't seem like a valid action" (app "use x on door" startingGS),
       testCase "use bad item on bad object" $
-        assertEqual [] "Invalid" (app "use x on x" startingGS),
+        assertEqual [] "That doesn't seem like a valid action" (app "use x on x" startingGS),
       testCase "use item on bad object" $
-        assertEqual [] "Invalid" (app "use key on x" startingGS),
+        assertEqual [] "That doesn't seem like a valid action" (app "use key on x" startingGS),
       testCase "use unowned item on object" $
-        assertEqual [] "NoItem" (app "use key on door" startingGS)
+        assertEqual [] "That item is not in your inventory" (app "use key on door" startingGS)
     ]
 
 testText = "hello there the wrap will be before the word wrap"
