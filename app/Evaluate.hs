@@ -19,7 +19,6 @@ getUseFn = Maybe.maybe (\g -> g {gameError = Just NoObject}) useFn
 useItemObject :: ItemName -> ObjectName -> GameState -> GameState
 useItemObject item object gs
   | Set.notMember item (inventory gs) = gs {gameError = Just NoItem}
-  | Maybe.isNothing maybeObj = gs {gameError = Just NoObject}
   | otherwise = getUseFn maybeObj gs {command = Use item object, gameError = Nothing}
   where
     maybeObj = getObject object gs
