@@ -4,13 +4,13 @@ import Data.Map (Map)
 import Data.Set (Set)
 import Text.Show.Functions
 
-data Language = Japanese | English deriving (Show,Ord,Eq)
+data Language = Japanese | English deriving (Show, Ord, Eq)
 
 data ItemName = Key | Knife deriving (Show, Ord, Eq)
 
 type Description = Map Language String
 
-newtype Item = Item { itemDesc :: Description }
+newtype Item = Item {itemDesc :: Description}
 
 data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
@@ -20,7 +20,14 @@ data Location = Location
   }
   deriving (Show)
 
-data ObjectName = Book | Bed | Door | Walls | BedsideTable | Fridge deriving (Show, Ord, Eq)
+data ObjectName
+  = Book
+  | Bed
+  | Door
+  | Walls
+  | BedsideTable
+  | Fridge
+  deriving (Show, Ord, Eq)
 
 data Object = Object
   { objDesc :: Description,

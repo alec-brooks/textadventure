@@ -18,44 +18,74 @@ defaultObj =
 
 book =
   defaultObj
-    { objDesc = fromList [(English, "An old tome, it smells like glue")],
+    { objDesc =
+        fromList
+          [ (English, "An old tome, it smells like glue")
+          ],
       item = Just Key,
-      interactText = fromList [(English, "Inside the book is a hollowed out chamber containing a key")]
+      interactText =
+        fromList
+          [ (English, "Inside the book is a hollowed out chamber containing a key")
+          ]
     }
 
 bed =
   defaultObj
-    { objDesc = fromList [(English, "A normal old bed")],
+    { objDesc =
+        fromList
+          [ (English, "A normal old bed")
+          ],
       item = Nothing
     }
 
 bedsideTable =
   defaultObj
-    { objDesc = fromList [(English, "A plain bedside table. There are no drawers. On it lies the book")],
+    { objDesc =
+        fromList
+          [ (English, "A plain bedside table. There are no drawers. On it lies the book")
+          ],
       item = Nothing
     }
 
 walls =
   defaultObj
-    { objDesc = fromList [(English, "Lightly scuffed but solid. They could be plastered brick")],
+    { objDesc =
+        fromList
+          [ (English, "Lightly scuffed but solid. They could be plastered brick")
+          ],
       item = Nothing
     }
 
 door =
   defaultObj
-    { objDesc = fromList [(English, "A sorry looking wooden door. There is a key hole present near the handle")],
+    { objDesc =
+        fromList
+          [ (English, "A sorry looking wooden door. There is a key hole present near the handle")
+          ],
       item = Nothing,
-      interactText = fromList [(English, "Despite it's frail appearance you can't get it to budge")],
+      interactText =
+        fromList
+          [ (English, "Despite it's frail appearance you can't get it to budge")
+          ],
       useItem = Just Key,
-      useText = fromList [(English, "The key fits the lock and after some effort the door swings open, revealing a path to the kitchen")],
+      useText =
+        fromList
+          [ (English, "The key fits the lock and after some effort the door swings open, revealing a path to the kitchen")
+          ],
       useFn = \gs -> gs {navigableLocations = Set.insert Kitchen $ navigableLocations gs}
     }
 
 fridge =
   defaultObj
-    { objDesc = fromList [(English, "Honking great fridge I tell you")],
+    { objDesc =
+        fromList
+          [ (English, "Honking great fridge I tell you")
+          ],
       item = Just Knife,
-      interactText = fromList [(English, "You crack open the door and find nothing but a rusty kitchen knife")]
+      interactText =
+        fromList
+          [ (English, "You crack open the door and find nothing but a rusty kitchen knife")
+          ]
     }
 
 locales :: Map LocationName Location
@@ -69,8 +99,14 @@ locales =
       )
     ]
   where
-    kitchenDesc = fromList [(English, "An old kitchen. The walls are stone and the air is cool")]
-    bedroomDesc = fromList [(English, "You are in the room where you rest. There is a book lying on the bedside table. A frail door stands in the middle of one of the blank walls")]
+    kitchenDesc =
+      fromList
+        [ (English, "An old kitchen. The walls are stone and the air is cool")
+        ]
+    bedroomDesc =
+      fromList
+        [ (English, "You are in the room where you rest. There is a book lying on the bedside table. A frail door stands in the middle of one of the blank walls")
+        ]
     bedroomObjects = fromList [(Book, book), (Bed, bed), (Door, door), (Walls, walls), (BedsideTable, bedsideTable)]
     kitchenObjects = fromList [(Fridge, fridge)]
 

@@ -1,14 +1,19 @@
 module Main where
+
+import Data.Map
+import FormatMessage (wrap)
 import Game (loop')
 import GameObjects (startingGS)
-import FormatMessage (wrap)
 import State
-import Data.Map
 
 initialLocationText :: String
-initialLocationText = locationDesc ( locations startingGS ! currentLocation startingGS) ! language startingGS
+initialLocationText = locationDesc currentLocale ! language startingGS
+  where
+    currentLocale = locations startingGS ! currentLocation startingGS
 
-startMessage = "Welcome to text adventure. Type help for help\n" ++ wrap initialLocationText
+startMessage =
+  "Welcome to text adventure. Type help for help\n"
+    ++ wrap initialLocationText
 
 main :: IO ()
 main = do
