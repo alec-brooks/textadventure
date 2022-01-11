@@ -1,4 +1,5 @@
 import Data.Set (Set)
+import Data.Map ((!))
 import qualified Data.Set as Set
 import GameObjects (book, startingGS)
 import ParseCommand (parseCommand)
@@ -13,6 +14,7 @@ import State
     currentLocation,
     navigableLocations,
     inventory,
+    Language (..),
   )
 import Evaluate (eval)
 import FormatMessage (formatMessage,wrapText)
@@ -69,9 +71,9 @@ e2eTests =
   testGroup
     "End to End Tests"
     [ testCase "examine items" $
-        assertEqual [] (objDesc book) (app "examine book" startingGS),
+        assertEqual [] (objDesc book ! English) (app "examine book" startingGS),
       testCase "interact items" $
-        assertEqual [] (interactText book ++ "\nKey added to inventory") (app "open book" startingGS),
+        assertEqual [] (interactText book ! English ++ "\nKey added to inventory") (app "open book" startingGS),
       testCase "look at inventory " $
         assertEqual [] "Inventory Contents:\nKey\nKnife" (app "inventory" startingGS {inventory = Set.fromList [Key,Knife]}),
 

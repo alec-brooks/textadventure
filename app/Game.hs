@@ -10,8 +10,8 @@ import Evaluate (eval)
 import FormatMessage (formatMessage)
 
 -- todo:
+--   language
 --   look at room
---   Add use fail case text
 
 read' = do
   putStr "> "

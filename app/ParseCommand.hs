@@ -70,4 +70,4 @@ objectInput =
       ("table", BedsideTable)
     ]
 
-itemInput = fromList [("key", Key)]
+itemInput = fromList [("key", Key), ("knife", Knife)]

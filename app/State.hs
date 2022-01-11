@@ -4,31 +4,30 @@ import Data.Map (Map)
 import Data.Set (Set)
 import Text.Show.Functions
 
-data Language = Japanese | English deriving (Show)
+data Language = Japanese | English deriving (Show,Ord,Eq)
 
 data ItemName = Key | Knife deriving (Show, Ord, Eq)
 
-data Item = Item
-  { itemDesc :: String,
-    interaction :: Object -> GameState -> GameState
-  }
+type Description = Map Language String
+
+newtype Item = Item { itemDesc :: Description }
 
 data LocationName = Kitchen | Bedroom deriving (Show, Ord, Eq)
 
 data Location = Location
-  { locationDesc :: String,
+  { locationDesc :: Description,
     objects :: Map ObjectName Object
   }
   deriving (Show)
 
-data ObjectName = Book | Bed | Door | Walls | BedsideTable deriving (Show, Ord, Eq)
+data ObjectName = Book | Bed | Door | Walls | BedsideTable | Fridge deriving (Show, Ord, Eq)
 
 data Object = Object
-  { objDesc :: String,
+  { objDesc :: Description,
     item :: Maybe ItemName,
-    interactText :: String,
+    interactText :: Description,
     useItem :: Maybe ItemName,
-    useText :: String,
+    useText :: Description,
     useFn :: GameState -> GameState
   }
   deriving (Show)

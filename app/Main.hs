@@ -6,7 +6,7 @@ import State
 import Data.Map
 
 initialLocationText :: String
-initialLocationText = locationDesc $ locations startingGS ! currentLocation startingGS
+initialLocationText = locationDesc ( locations startingGS ! currentLocation startingGS) ! language startingGS
 
 startMessage = "Welcome to text adventure. Type help for help\n" ++ wrap initialLocationText
 
